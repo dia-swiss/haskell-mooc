@@ -147,7 +147,7 @@ powers k max = takeWhile (\x-> x<=max) (map (\x -> k^x) [0..max])
 --     ==> Avvt
 
 while :: (a->Bool) -> (a->a) -> a -> a
-while check update value = todo
+while check update value = if check value then while check update (update value) else value
 
 ------------------------------------------------------------------------------
 -- Ex 8: another version of a while loop. This time, the check
@@ -164,7 +164,10 @@ while check update value = todo
 --   whileRight (step 1000) 3  ==> 1536
 
 whileRight :: (a -> Either b a) -> a -> b
-whileRight f x = todo
+whileRight f x = case result of 
+                    Left b -> b
+                    Right a -> whileRight f a         
+                    where result = f x
 
 -- for the whileRight examples:
 -- step k x doubles x if it's less than k
@@ -183,7 +186,7 @@ step k x = if x<k then Right (2*x) else Left x
 -- Hint! This is a great use for list comprehensions
 
 joinToLength :: Int -> [String] -> [String]
-joinToLength = todo
+joinToLength n arr = filter ((n==) . length) [xs ++ ys | xs <- arr, ys <- arr]
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the operator +|+ that returns a list with the first
@@ -196,7 +199,11 @@ joinToLength = todo
 --   [1,2,3] +|+ [4,5,6]  ==> [1,4]
 --   [] +|+ [True]        ==> [True]
 --   [] +|+ []            ==> []
-
+(+|+) :: [a] -> [a] -> [a]
+(+|+) [] [] = []
+(+|+) (x:xs) [] = [x]
+(+|+) [] (y:ys) = [y]
+(+|+) (x:xs) (y:ys) = [x,y]
 
 ------------------------------------------------------------------------------
 -- Ex 11: remember the lectureParticipants example from Lecture 2? We
@@ -213,7 +220,11 @@ joinToLength = todo
 --   sumRights [Left "bad!", Left "missing"]         ==>  0
 
 sumRights :: [Either a Int] -> Int
-sumRights = todo
+sumRights measurements = sumRights' measurements 0
+                            where
+                                sumRights' [] count = count
+                                sumRights' (Left a:rest) count = sumRights' rest count
+                                sumRights' (Right b:rest) count = sumRights' rest (count + b)
 
 ------------------------------------------------------------------------------
 -- Ex 12: recall the binary function composition operation
@@ -229,7 +240,8 @@ sumRights = todo
 --   multiCompose [(3*), (2^), (+1)] 0 ==> 6
 --   multiCompose [(+1), (2^), (3*)] 0 ==> 2
 
-multiCompose fs = todo
+multiCompose [] = id
+multiCompose (f:fs) = f . multiCompose fs
 
 ------------------------------------------------------------------------------
 -- Ex 13: let's consider another way to compose multiple functions. Given
@@ -250,7 +262,12 @@ multiCompose fs = todo
 --   multiApp id [head, (!!2), last] "axbxc" ==> "abc"
 --   multiApp sum [head, (!!2), last] [1,9,2,9,3] ==> 6
 
-multiApp = todo
+multiApp :: ([b] -> c) -> [(a->b)] -> a -> c
+multiApp f gs x = multiApp' f gs x []
+                    where 
+                        multiApp' f [] x acc = f acc
+                        multiApp' f (g:gs) x acc = multiApp' g gs x (g x):acc
+
 
 ------------------------------------------------------------------------------
 -- Ex 14: in this exercise you get to implement an interpreter for a
