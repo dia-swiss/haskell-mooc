@@ -54,10 +54,10 @@ mapMaybe f (Just a) = Just $ f a
 --   mapMaybe2 div Nothing  (Just 3)  ==>  Nothing
 --   mapMaybe2 div (Just 6) Nothing   ==>  Nothing
 
--- mapMaybe2 :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
--- mapMaybe2 _ Nothing _ = Nothing
--- mapMaybe2 _ _ Nothing = Nothing
--- mapMaybe2 f (Just a) (Just b) = Just $ f a b
+mapMaybe2 :: (a -> b -> c) -> Maybe a -> Maybe b -> Maybe c
+mapMaybe2 _ Nothing _ = Nothing
+mapMaybe2 _ _ Nothing = Nothing
+mapMaybe2 f (Just a) (Just b) = Just $ f a b
 
 ------------------------------------------------------------------------------
 -- Ex 4: define the functions firstHalf and palindrome so that
@@ -79,9 +79,16 @@ mapMaybe f (Just a) = Just $ f a
 palindromeHalfs :: [String] -> [String]
 palindromeHalfs xs = map firstHalf (filter palindrome xs)
 
-firstHalf = todo
+firstHalf :: String -> String
+firstHalf xs 
+    | even strlength = take (div strlength 2) xs
+    | otherwise = take (div (strlength + 1) 2) xs
+        where strlength = length xs
 
-palindrome = todo
+palindrome :: String -> Bool
+palindrome xs 
+    | xs == reverse xs = True
+    | otherwise = False
 
 ------------------------------------------------------------------------------
 -- Ex 5: Implement a function capitalize that takes in a string and
@@ -99,7 +106,8 @@ palindrome = todo
 --   capitalize "goodbye cruel world" ==> "Goodbye Cruel World"
 
 capitalize :: String -> String
-capitalize = todo
+capitalize = unwords . map capitalizeWord' . words
+    where capitalizeWord' (s:ss) = [toUpper s] ++ ss
 
 ------------------------------------------------------------------------------
 -- Ex 6: powers k max should return all the powers of k that are less
@@ -116,7 +124,7 @@ capitalize = todo
 --   * the function takeWhile
 
 powers :: Int -> Int -> [Int]
-powers k max = todo
+powers k max = takeWhile (\x-> x<=max) (map (\x -> k^x) [0..max])
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement a functional while loop. While should be a function
