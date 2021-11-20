@@ -262,11 +262,11 @@ multiCompose (f:fs) = f . multiCompose fs
 --   multiApp id [head, (!!2), last] "axbxc" ==> "abc"
 --   multiApp sum [head, (!!2), last] [1,9,2,9,3] ==> 6
 
-multiApp :: ([b] -> c) -> [(a->b)] -> a -> c
+multiApp :: ([b] -> c) -> [a->b] -> a -> c
 multiApp f gs x = multiApp' f gs x []
                     where 
-                        multiApp' f [] x acc = f acc
-                        multiApp' f (g:gs) x acc = multiApp' g gs x (g x):acc
+                        multiApp' f [] _ arr = f arr
+                        multiApp' f (g:gs) x arr = multiApp' f gs x (arr ++ [g x])
 
 
 ------------------------------------------------------------------------------
@@ -302,4 +302,14 @@ multiApp f gs x = multiApp' f gs x []
 -- function, the surprise won't work.
 
 interpreter :: [String] -> [String]
-interpreter commands = todo
+interpreter commands = interpreter' commands 0 0 []
+                        where
+                            interpreter' [] _ _ result = result
+                            interpreter' (cmd:cmds) x y result = case cmd of
+                                                                    "up" -> interpreter' cmds x (y+1) result
+                                                                    "down" -> interpreter' cmds x (y-1) result
+                                                                    "left" -> interpreter' cmds (x-1) y result
+                                                                    "right" -> interpreter' cmds (x+1) y result
+                                                                    "printX" -> interpreter' cmds x y (result ++ [show x])
+                                                                    "printY" -> interpreter' cmds x y (result ++ [show y])
+                            
