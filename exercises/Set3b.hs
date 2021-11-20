@@ -139,6 +139,13 @@ sumsOf xs = sumOf' xs []
                     init' [x] = []
                     init' (x:xs) = x : init' xs
 
+-- Better solution:
+-- sumsOf :: [Int] -> [Int]
+-- sumsOf []          = []
+-- sumsOf (x:[])      = x : []
+-- sumsOf (x:next:xs) = x : sumsOf (x+next : xs)
+
+
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement the function merge that merges two sorted lists of
@@ -160,6 +167,16 @@ merge xs ys = merge' xs ys []
                     
                     reverse' [] list = list
                     reverse' (x:xs) list = reverse' xs (x:list)
+
+
+-- Better solution:
+-- merge :: [Int] -> [Int] -> [Int]
+-- merge [] ys = ys
+-- merge xs [] = xs
+-- merge (x:xs) (y:ys)
+--   | x <= y = x : merge xs (y:ys)
+--   | y < x = y : merge (x:xs) ys
+
                     
 ------------------------------------------------------------------------------
 -- Ex 8: define the function mymaximum that takes a list and a
@@ -178,7 +195,20 @@ merge xs ys = merge' xs ys []
 --     ==> [1,2]
 
 mymaximum :: (a -> a -> Bool) -> a -> [a] -> a
-mymaximum bigger initial xs = todo
+mymaximum bigger def xs = mymaximum' bigger def xs 
+                            where 
+                                mymaximum' _ biggest [] = biggest
+                                mymaximum' bigger biggest (x:xs) = if bigger x biggest then mymaximum' bigger x xs else mymaximum' bigger biggest xs 
+
+
+
+-- Better solution
+-- mymaximum :: (a -> a -> Bool) -> a -> [a] -> a
+-- mymaximum bigger initial [] = initial
+-- mymaximum bigger initial (x:xs) = if x `bigger` initial
+--                                   then mymaximum bigger x xs
+--                                   else mymaximum bigger initial xs
+
 
 ------------------------------------------------------------------------------
 -- Ex 9: define a version of map that takes a two-argument function
@@ -192,7 +222,20 @@ mymaximum bigger initial xs = todo
 -- Use recursion and pattern matching. Do not use any library functions.
 
 map2 :: (a -> b -> c) -> [a] -> [b] -> [c]
-map2 f as bs = todo
+map2 f as bs = map2' f as bs []
+                where 
+                    map2' _ [] _ acc = reverse' acc []
+                    map2' _ _ [] acc = reverse' acc []
+                    map2' f (a:as) (b:bs) acc = map2' f as bs ((f a b):acc)
+
+                    reverse' [] list = list
+                    reverse' (x:xs) list = reverse' xs (x:list)
+
+--Better solution
+-- map2 :: (a -> b -> c) -> [a] -> [b] -> [c]
+-- map2 f as []         = []
+-- map2 f [] bs         = []
+-- map2 f (a:as) (b:bs) = f a b : map2 f as bs
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the function maybeMap, which works a bit like a
@@ -216,4 +259,19 @@ map2 f as bs = todo
 --   ==> []
 
 maybeMap :: (a -> Maybe b) -> [a] -> [b]
-maybeMap f xs = todo
+maybeMap f xs = maybeMap' f xs []
+                    where 
+                        maybeMap' _ [] res = reverse' res []
+                        maybeMap' f (x:xs) res = case f x of
+                                                    Just x -> maybeMap' f xs (x:res)
+                                                    Nothing -> maybeMap' f xs res
+
+                        reverse' [] list = list
+                        reverse' (x:xs) list = reverse' xs (x:list)
+
+-- Better solution:
+-- maybeMap :: (a -> Maybe b) -> [a] -> [b]
+-- maybeMap f [] = []
+-- maybeMap f (x:xs) = case f x of
+--      Nothing -> maybeMap f xs
+--      Just a  -> a : maybeMap f xs
