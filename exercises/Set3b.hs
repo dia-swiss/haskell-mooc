@@ -127,8 +127,20 @@ sorted (x:xs) = sorted' xs x
 -- Use pattern matching and recursion (and the list constructors : and [])
 
 sumsOf :: [Int] -> [Int]
-sumsOf xs = todo
+sumsOf xs = sumOf' xs []
+                where
+                    sumOf' [] acc = acc                    
+                    sumOf' (x:xs) acc = sumOf' (init' (x:xs)) ((sum' (x:xs)):acc)
 
+                    sum' [] = 0
+                    sum' (x:xs) = x + sum' xs
+
+                    init' [] = []
+                    init' [x] = []
+                    init' (x:xs) = x : init' xs
+
+
+--sumOf' xs ((sum' xs x):acc)                    
 ------------------------------------------------------------------------------
 -- Ex 7: implement the function merge that merges two sorted lists of
 -- Ints into a sorted list
