@@ -39,7 +39,11 @@ import Mooc.Todo
 --   buildList 7 0 3 ==> [3]
 
 buildList :: Int -> Int -> Int -> [Int]
-buildList start count end = todo
+buildList start count end = buildList' start count [end]
+                                where 
+                                    buildList' _ 0 list = list
+                                    buildList' start count list = buildList' start (count-1) (start:list)
+
 
 ------------------------------------------------------------------------------
 -- Ex 2: given i, build the list of sums [1, 1+2, 1+2+3, .., 1+2+..+i]
@@ -49,7 +53,14 @@ buildList start count end = todo
 -- Ps. you'll probably need a recursive helper function
 
 sums :: Int -> [Int]
-sums i = todo
+sums i = sums' i i []
+    where 
+        sums' i n res
+            | n == 1 = (1:res)
+            | otherwise = sums' i (n-1) (sum' n : res)
+                where 
+                    sum' 1 = 1
+                    sum' n = n + sum' (n-1)
 
 ------------------------------------------------------------------------------
 -- Ex 3: define a function mylast that returns the last value of the
@@ -63,7 +74,11 @@ sums i = todo
 --   mylast 0 [1,2,3] ==> 3
 
 mylast :: a -> [a] -> a
-mylast def xs = todo
+mylast def xs = mylast' xs def
+                    where
+                        mylast' [] value = value
+                        mylast' (x:xs) _ = mylast' xs x
+                        
 
 ------------------------------------------------------------------------------
 -- Ex 4: safe list indexing. Define a function indexDefault so that
@@ -81,7 +96,12 @@ mylast def xs = todo
 --   indexDefault ["a","b","c"] (-1) "d" ==> "d"
 
 indexDefault :: [a] -> Int -> a -> a
-indexDefault xs i def = todo
+indexDefault xs i def = indexDefault' xs i def 0
+                            where 
+                                indexDefault' [] _ def _ = def
+                                indexDefault' (x:xs) i def pos
+                                    | i < 0 = def
+                                    | otherwise = if pos==i then x else indexDefault' xs i def (pos+1)
 
 ------------------------------------------------------------------------------
 -- Ex 5: define a function that checks if the given list is in
@@ -90,7 +110,12 @@ indexDefault xs i def = todo
 -- Use pattern matching and recursion to iterate through the list.
 
 sorted :: [Int] -> Bool
-sorted xs = todo
+sorted [] = True
+sorted (x:xs) = sorted' xs x
+                    where
+                        sorted' [] _ = True
+                        sorted' (x:xs) val = if val > x then False else sorted' xs x
+                    
 
 ------------------------------------------------------------------------------
 -- Ex 6: compute the partial sums of the given list like this:
