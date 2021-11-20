@@ -140,7 +140,6 @@ sumsOf xs = sumOf' xs []
                     init' (x:xs) = x : init' xs
 
 
---sumOf' xs ((sum' xs x):acc)                    
 ------------------------------------------------------------------------------
 -- Ex 7: implement the function merge that merges two sorted lists of
 -- Ints into a sorted list
@@ -152,8 +151,16 @@ sumsOf xs = sumOf' xs []
 --   merge [1,1,6] [1,2]   ==> [1,1,1,2,6]
 
 merge :: [Int] -> [Int] -> [Int]
-merge xs ys = todo
-
+merge xs ys = merge' xs ys []
+                where 
+                    merge' []   []  acc = reverse' acc []
+                    merge' []   (y:ys) acc = merge' [] ys (y:acc)
+                    merge' (x:xs)   [] acc = merge' xs [] (x:acc)                    
+                    merge' (x:xs) (y:ys) acc = if (x <= y) then merge' xs (y:ys) (x:acc) else merge' (x:xs) ys (y:acc)
+                    
+                    reverse' [] list = list
+                    reverse' (x:xs) list = reverse' xs (x:list)
+                    
 ------------------------------------------------------------------------------
 -- Ex 8: define the function mymaximum that takes a list and a
 -- function bigger :: a -> a -> Bool and returns the
