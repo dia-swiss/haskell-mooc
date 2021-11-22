@@ -112,7 +112,17 @@ rangeOf arr = (last arr') - (head arr')
 --   longest [[1,2,3],[4,5],[6]] ==> [1,2,3]
 --   longest ["bcd","def","ab"] ==> "bcd"
 
-longest = todo
+longest:: (Ord a) => [[a]] -> [a]
+longest xs = foldl1 (\acc elem -> if length elem > length acc then elem else acc  ) $ sort xs
+
+-- Alternative with challenge
+-- longest :: (Ord a) => [[a]] -> [a]
+-- longest []  = []
+-- longest [x] = x
+-- longest (x:y:zs)
+--   | length x == length y = if head x < head y then longest (x:zs) else longest (y:zs)
+--   | length x > length y = longest (x:zs)
+--   | length y > length x = longest (y:zs)
 
 ------------------------------------------------------------------------------
 -- Ex 6: Implement the function incrementKey, that takes a list of
@@ -128,8 +138,17 @@ longest = todo
 --   incrementKey True [(True,1),(False,3),(True,4)] ==> [(True,2),(False,3),(True,5)]
 --   incrementKey 'a' [('a',3.4)] ==> [('a',4.4)]
 
-incrementKey :: k -> [(k,v)] -> [(k,v)]
-incrementKey = todo
+incrementKey :: (Eq k, Num v) => k -> [(k,v)] -> [(k,v)]
+incrementKey k = map incrementKey'
+                        where
+                            incrementKey' (key,value) 
+                                | key == k = (key,value + 1)
+                                | otherwise = (key,value)
+
+-- Better solution
+-- incrementKey :: (Eq k, Num v) => k -> [(k,v)] -> [(k,v)]
+-- incrementKey k = map (\(a,b) -> if a == k then (a,b+1) else (a,b))
+                            
 
 ------------------------------------------------------------------------------
 -- Ex 7: compute the average of a list of values of the Fractional
