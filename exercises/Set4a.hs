@@ -163,7 +163,7 @@ incrementKey k = map incrementKey'
 -- length to a Fractional
 
 average :: Fractional a => [a] -> a
-average xs = todo
+average xs = foldl (\acc elem -> elem + acc) 0 xs / fromIntegral (length xs)
 
 ------------------------------------------------------------------------------
 -- Ex 8: given a map from player name to score and two players, return
@@ -182,7 +182,7 @@ average xs = todo
 --     ==> "Lisa"
 
 winner :: Map.Map String Int -> String -> String -> String
-winner scores player1 player2 = todo
+winner scores player1 player2 = if ((Map.findWithDefault 0 player1 scores) >= (Map.findWithDefault 0 player2 scores)) then player1 else player2
 
 ------------------------------------------------------------------------------
 -- Ex 9: compute how many times each value in the list occurs. Return
@@ -197,7 +197,9 @@ winner scores player1 player2 = todo
 --     ==> Map.fromList [(False,3),(True,1)]
 
 freqs :: (Eq a, Ord a) => [a] -> Map.Map a Int
-freqs xs = todo
+freqs xs = let f Nothing = Just 1 
+               f (Just x) = Just (x+1)
+            in foldr (\elem acc -> Map.alter f elem acc ) Map.empty xs
 
 ------------------------------------------------------------------------------
 -- Ex 10: recall the withdraw example from the course material. Write a
