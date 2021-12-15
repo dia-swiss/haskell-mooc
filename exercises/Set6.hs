@@ -13,7 +13,10 @@ data Country = Finland | Switzerland | Norway
   deriving Show
 
 instance Eq Country where
-  (==) = todo
+  (==) Finland Finland = True
+  (==) Switzerland Switzerland = True
+  (==) Norway Norway = True
+  (==) _ _ = False
 
 ------------------------------------------------------------------------------
 -- Ex 2: implement an Ord instance for Country so that
@@ -22,10 +25,11 @@ instance Eq Country where
 -- Remember minimal complete definitions!
 
 instance Ord Country where
-  compare = todo -- implement me?
-  (<=) = todo -- and me?
-  min = todo -- and me?
-  max = todo -- and me?
+  compare x y | x == y                           = EQ
+              | x == Finland && y == Norway      = LT
+              | x == Finland && y == Switzerland = LT
+              | x == Norway && y == Switzerland  = LT
+              | otherwise                        = GT
 
 ------------------------------------------------------------------------------
 -- Ex 3: Implement an Eq instance for the type Name which contains a String.
@@ -41,7 +45,7 @@ data Name = Name String
   deriving Show
 
 instance Eq Name where
-  (==) = todo
+  (==) (Name xs) (Name ys) = (toLower <$> xs) == (toLower <$> ys)
 
 ------------------------------------------------------------------------------
 -- Ex 4: here is a list type parameterized over the type it contains.
@@ -55,8 +59,10 @@ data List a = Empty | LNode a (List a)
   deriving Show
 
 instance Eq a => Eq (List a) where
-  (==) = todo
-
+  (==) Empty Empty = True
+  (==) (LNode a la) (LNode b lb) = a == b && la == lb
+  (==) _ _ = False
+  
 ------------------------------------------------------------------------------
 -- Ex 5: below you'll find two datatypes, Egg and Milk. Implement a
 -- type class Price, containing a function price. The price function
