@@ -81,6 +81,15 @@ data Egg = ChickenEgg | ChocolateEgg
 data Milk = Milk Int -- amount in litres
   deriving Show
 
+class Price a where
+  price :: a -> Int
+
+instance Price Egg where
+  price ChickenEgg = 20
+  price ChocolateEgg = 30
+
+instance Price Milk where
+  price (Milk a) = 15 * a
 
 ------------------------------------------------------------------------------
 -- Ex 6: define the necessary instances in order to be able to compute these:
@@ -89,6 +98,14 @@ data Milk = Milk Int -- amount in litres
 -- price [Milk 1, Milk 2]  ==> 45
 -- price [Just ChocolateEgg, Nothing, Just ChickenEgg]  ==> 50
 -- price [Nothing, Nothing, Just (Milk 1), Just (Milk 2)]  ==> 45
+
+instance (Price a) => Price (Maybe a) where
+  price Nothing  = 0
+  price (Just x) = price x
+
+instance (Price a) => Price [a] where
+  price []  = 0
+  price (x:xs) = price x + price xs
 
 
 ------------------------------------------------------------------------------
@@ -101,6 +118,20 @@ data Milk = Milk Int -- amount in litres
 data Number = Finite Integer | Infinite
   deriving (Show,Eq)
 
+instance Ord Number where
+  compare (Finite x) (Finite y)
+    | x == y = EQ
+    | x < y = LT
+    | otherwise = GT
+  compare (Finite x) Infinite = LT
+  compare Infinite (Finite y) = GT
+  compare Infinite Infinite = EQ
+
+-- Better alternative
+-- instance Ord Number where
+--   _          <= Infinite   = True
+--   Infinite   <= _          = False
+--   (Finite a) <= (Finite b) = a <= b
 
 ------------------------------------------------------------------------------
 -- Ex 8: rational numbers have a numerator and a denominator that are
@@ -126,7 +157,7 @@ data RationalNumber = RationalNumber Integer Integer
   deriving Show
 
 instance Eq RationalNumber where
-  p == q = todo
+  (==) (RationalNumber a b) (RationalNumber c d) = a*d == b*c
 
 ------------------------------------------------------------------------------
 -- Ex 9: implement the function simplify, which simplifies rational a
@@ -146,7 +177,15 @@ instance Eq RationalNumber where
 -- Hint: Remember the function gcd?
 
 simplify :: RationalNumber -> RationalNumber
-simplify p = todo
+simplify (RationalNumber a b) = RationalNumber (a `div` (gcd a b)) (b `div` (gcd a b))
+
+--Better alternative
+-- simplify :: RationalNumber -> RationalNumber
+-- simplify (RationalNumber a b) =
+--   let g = gcd a b
+--   in  if g == 1
+--         then RationalNumber a b
+--         else RationalNumber (a `div` g) (b `div` g)
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the typeclass Num for RationalNumber. The results
@@ -167,12 +206,12 @@ simplify p = todo
 --   signum (RationalNumber 0 2)             ==> RationalNumber 0 1
 
 instance Num RationalNumber where
-  p + q = todo
-  p * q = todo
-  abs q = todo
-  signum q = todo
-  fromInteger x = todo
-  negate q = todo
+  (+) (RationalNumber a b) (RationalNumber c d) = simplify $ RationalNumber (a*d+c*b) (b*d)
+  (*) (RationalNumber a b) (RationalNumber c d) = simplify $ RationalNumber (a*c) (b*d)
+  abs (RationalNumber a b) = RationalNumber (abs a) (abs b)  
+  signum (RationalNumber a b) = RationalNumber (signum a) (signum b)
+  fromInteger x = RationalNumber x 1
+  negate (RationalNumber a b) = RationalNumber (negate a) b
 
 ------------------------------------------------------------------------------
 -- Ex 11: a class for adding things. Define a class Addable with a
@@ -186,6 +225,19 @@ instance Num RationalNumber where
 --   add 1 zero             ==>  1
 --   add [1,2] [3,4]        ==>  [1,2,3,4]
 --   add zero [True,False]  ==>  [True,False]
+
+class Addable a where
+  zero :: a
+  add :: a->a->a
+
+instance Addable Integer where 
+  zero = 0
+  add x y = x+y
+
+instance Addable [a] where
+  zero = []
+  add xs ys = xs ++ ys
+
 
 
 ------------------------------------------------------------------------------
@@ -218,3 +270,20 @@ data Color = Red | Green | Blue
 data Suit = Club | Spade | Diamond | Heart
   deriving (Show, Eq)
 
+class Cycle a where
+  step :: a -> a
+  stepMany :: Int -> a -> a
+  stepMany 0 a = a
+  stepMany n a = stepMany (n-1) (step a)
+
+instance Cycle Color where
+  step Red = Green
+  step Green = Blue
+  step Blue = Red  
+
+instance Cycle Suit where
+  step Club = Spade
+  step Spade = Diamond
+  step Diamond = Heart
+  step Heart = Club
+  
